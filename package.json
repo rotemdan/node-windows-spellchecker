@@ -30,7 +30,6 @@
 		"dist",
 		"addon/WindowsSpellChecker.node",
 		"src",
-		"docs",
 		"tsconfig.json",
 		"LICENSE.md",
 		"README.md"
