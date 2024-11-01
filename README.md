@@ -14,7 +14,10 @@ npm install windows-spellchecker-minimal
 ```
 
 ```ts
-import { createWindowsSpellChecker } from 'windows-spellchecker-minimal'
+import { createWindowsSpellChecker, getSupportedLanguages } from 'windows-spellchecker-minimal'
+
+console.log(getSupportedLanguages())
+// Output: [ 'en-US', 'fr-FR', 'es-ES' ]
 
 const checker = createWindowsSpellChecker('en-US')
 
@@ -33,7 +36,9 @@ console.log(checker.getSpellingSuggestions('Hellow'))
 checker.dispose()
 ```
 
-Adding and removing words is supported, but the added word would persist in the Windows dictionary forever, for the current user. That's may not be desired for all applications.
+## Adding and removing words
+
+Adding and removing words is supported by the Windows API, but the added word would persist in the Windows dictionary forever, for the current user. That may not be desired for all applications.
 
 ```ts
 checker.addWord('Hellow')
@@ -46,6 +51,8 @@ The Windows custom dictionary, containing the added word, is located in:
 ```
 %userprofile%\AppData\Roaming\Microsoft\Spelling\neutral\default.dic
 ```
+
+**Note**: for unknown reason, a call to `addWord` doesn't instantly register the word via the Windows API. If you call `addWord('foobar')` and then immediately call `testSpelling('foobar')`, you may get `false` even though the word was successfully added to the system dictionary.
 
 ## Building the N-API addon
 
