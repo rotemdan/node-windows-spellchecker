@@ -58,7 +58,7 @@ The Windows custom dictionary, containing the added word, is located at:
 
 ## Building the N-API addon
 
-The library is bundled with a pre-built addons, so no recompilation should be needed.
+The library is bundled with a pre-built addon, so recompilation shouldn't be needed.
 
 If you still want to compile yourself, for a modification or a fork:
 
