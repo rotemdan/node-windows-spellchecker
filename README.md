@@ -44,7 +44,7 @@ checker.removeWord('Hellow')
 
 The Windows custom dictionary, containing the added word, is located in:
 ```
-%userprofile%\AppData\Roaming\Microsoft\Spelling\neutral\default.dic.
+%userprofile%\AppData\Roaming\Microsoft\Spelling\neutral\default.dic
 ```
 
 ## Building the N-API addon
