@@ -1,5 +1,11 @@
 import { createRequire } from 'node:module'
 
+export function getSupportedLanguages(): string[] {
+	const addon = createRequire(import.meta.url)('../addon/WindowsSpellChecker.node')
+
+	return addon.getSupportedLanguages()
+}
+
 export function createWindowsSpellChecker(language: string) {
 	const addon = createRequire(import.meta.url)('../addon/WindowsSpellChecker.node')
 

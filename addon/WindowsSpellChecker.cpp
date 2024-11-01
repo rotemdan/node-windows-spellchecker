@@ -8,6 +8,9 @@
 
 #include <napi.h>
 
+///////////////////////////////////////////////////////////////////////////////////////////
+// Utility methods
+///////////////////////////////////////////////////////////////////////////////////////////
 std::u16string wstringToU16string(const std::wstring& wstr) {
     std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
 
@@ -28,6 +31,9 @@ std::wstring napiStringToWString(const Napi::String& napiString) {
 	return u16stringToWstring(napiString.Utf16Value());
 }
 
+///////////////////////////////////////////////////////////////////////////////////////////
+// Windows spell-checker class
+///////////////////////////////////////////////////////////////////////////////////////////
 class WindowsSpellChecker {
 private:
 	ISpellChecker* spellChecker;
@@ -166,7 +172,51 @@ public:
 	}
 };
 
-Napi::Value CreateWindowsSpellChecker(const Napi::CallbackInfo& info) {
+///////////////////////////////////////////////////////////////////////////////////////////
+// Language list method
+///////////////////////////////////////////////////////////////////////////////////////////
+std::vector<std::wstring> getSupportedLanguageList() {
+	std::vector<std::wstring> result;
+
+	HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+	if (FAILED(hr)) {
+		return result;
+	}
+
+	ISpellCheckerFactory* factory;
+
+	hr = CoCreateInstance(__uuidof(SpellCheckerFactory), nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&factory));
+	if (FAILED(hr)) {
+		return result;
+	}
+
+	IEnumString* langList;
+	hr = factory->get_SupportedLanguages(&langList);
+
+	if (FAILED(hr)) {
+		factory->Release();
+
+		return result;
+	}
+
+	factory->Release();
+
+	LPOLESTR lang;
+	while (langList->Next(1, &lang, nullptr) == S_OK) {
+		result.push_back(lang);
+
+		CoTaskMemFree(lang);
+	}
+	
+	CoUninitialize();
+
+	return result;
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////
+// Napi methods
+///////////////////////////////////////////////////////////////////////////////////////////
+Napi::Value createWindowsSpellChecker(const Napi::CallbackInfo& info) {
 	auto env = info.Env();
 
 	auto language = napiStringToWString(info[0].As<Napi::String>());
@@ -267,8 +317,27 @@ Napi::Value CreateWindowsSpellChecker(const Napi::CallbackInfo& info) {
 	return resultObject;
 }
 
+Napi::Array getSupportedLanguages(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	auto languageList = getSupportedLanguageList();
+
+	auto resultNapiArray = Napi::Array::New(env, languageList.size());
+
+	for (size_t i = 0; i < languageList.size(); i++) {
+		const std::wstring& language = languageList[i];
+
+		auto languageNapiString = Napi::String::New(env, wstringToU16string(language));
+
+		resultNapiArray.Set(i, languageNapiString);
+	}
+
+	return resultNapiArray;
+}
+
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
-	exports.Set(Napi::String::New(env, "createWindowsSpellChecker"), Napi::Function::New(env, CreateWindowsSpellChecker));
+	exports.Set(Napi::String::New(env, "getSupportedLanguages"), Napi::Function::New(env, getSupportedLanguages));
+	exports.Set(Napi::String::New(env, "createWindowsSpellChecker"), Napi::Function::New(env, createWindowsSpellChecker));
 
 	return exports;
 }

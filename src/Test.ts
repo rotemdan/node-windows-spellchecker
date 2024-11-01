@@ -1,4 +1,8 @@
-import { createWindowsSpellChecker } from './Exports.js'
+import { createWindowsSpellChecker, getSupportedLanguages } from './Exports.js'
+
+const languages = getSupportedLanguages()
+
+console.log(languages)
 
 const checker = createWindowsSpellChecker('en-US')
 
