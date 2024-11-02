@@ -293,13 +293,14 @@ Napi::Value createWindowsSpellChecker(const Napi::CallbackInfo& info) {
 	auto addWord = [windowsSpellChecker](const Napi::CallbackInfo& info) {
 		auto env = info.Env();
 
-		auto wordString = napiStringToWString(info[0].As<Napi::String>());
+		auto napiWordString = info[0].As<Napi::String>();
+		auto wordString = napiStringToWString(napiWordString);
 
 		auto errorCode = windowsSpellChecker->AddWord(wordString);
 
 		if (FAILED(errorCode)) {
 			std::stringstream errorString;
-			errorString << "Failed to add word '" << wordString.c_str() << "' to Windows spell checker. Got error code " << errorCode;
+			errorString << "Failed to add word '" << napiWordString.Utf8Value() << "' to Windows spell checker. Got error code " << errorCode;
 
 			Napi::Error::New(env, errorString.str()).ThrowAsJavaScriptException();
 		}
@@ -310,13 +311,14 @@ Napi::Value createWindowsSpellChecker(const Napi::CallbackInfo& info) {
 	auto removeWord = [windowsSpellChecker](const Napi::CallbackInfo& info) {
 		auto env = info.Env();
 
-		auto wordString = napiStringToWString(info[0].As<Napi::String>());
+		auto napiWordString = info[0].As<Napi::String>();
+		auto wordString = napiStringToWString(napiWordString);
 
 		auto errorCode = windowsSpellChecker->RemoveWord(wordString);
 
 		if (FAILED(errorCode)) {
 			std::stringstream errorString;
-			errorString << "Failed to remove word '" << wordString.c_str() << "' from Windows spell checker. Got error code " << errorCode << ".";
+			errorString << "Failed to remove word '" << napiWordString.Utf8Value() << "' from Windows spell checker. Got error code " << errorCode << ".";
 
 			Napi::Error::New(env, errorString.str()).ThrowAsJavaScriptException();
 		}

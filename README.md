@@ -6,7 +6,6 @@ Uses N-API to bind to the Windows native spell-checker:
 * Addon binary is pre-bundled. Doesn't require any install-time scripts
 * Uses the stable `napi.h` C++ API (with `NAPI_VERSION = 8`). It should not generally require recompilation for new different Node.js versions
 * Should work in different versions of Electron.js without recompilation
-* Does **not** use `node-gyp`, or any form of build automation like `MAKE` or `CMAKE`. Only a simple `.cmd` file that builds `node_api.lib` using `dlltool` and the N-API addon using `cl.exe` (MSVC)
 
 ## Usage Example
 ```
@@ -63,11 +62,8 @@ The library is bundled with a pre-built addon, so recompilation shouldn't be nee
 If you still want to compile yourself, for a modification or a fork:
 
 * Install Visual Studio 2022 build tools
-* Install [`msys2`](https://www.msys2.org/) and its x64 `binutils` package (`pacman -S mingw-w64-x86_64-binutils`)
-* Ensure you have `C:\msys64\mingw64\bin` in path
 * Use `x64 Native Tools Command Prompt for VS 2022` to ensure x64 VS2022 build tools are available in path
-* In the `addon/` directory, run `build.cmd`. It will build a `.node` addon using `cl.exe` (MSVC), as well as its `node_api.lib` dependency using `dlltool`
-
+* In the `addon` directory, run `npm install`, which will install the necessary build tools. Then run `npm run rebuild`.
 
 ## License
 

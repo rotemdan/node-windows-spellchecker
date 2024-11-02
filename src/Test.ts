@@ -1,7 +1,6 @@
 import { createWindowsSpellChecker, getSupportedLanguages, isAddonAvailable } from './Exports.js'
 
 const available = isAddonAvailable()
-
 console.log(available)
 
 const languages = getSupportedLanguages()
@@ -25,3 +24,4 @@ console.log(checker.getSpellingSuggestions('Hellow'))
 checker.dispose()
 
 const x = 0
+

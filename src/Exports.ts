@@ -68,7 +68,10 @@ export function createWindowsSpellChecker(language: string) {
 
 export function isAddonAvailable() {
 	try {
+		//console.log(`Trying to create addon..`)
 		const addon = getAddonInstance()
+
+		//console.log(`Trying to call 'isAddonLoaded'..`)
 		const result = addon.isAddonLoaded()
 
 		return result === true
