@@ -1,34 +1,51 @@
-#include <spellcheck.h>
 #include <string>
 #include <vector>
 #include <codecvt>
 #include <sstream>
+#include <iostream>
 
-#include <stdio.h>
-
+#include <spellcheck.h>
 #include <napi.h>
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // Utility methods
 ///////////////////////////////////////////////////////////////////////////////////////////
-std::u16string wstringToU16string(const std::wstring& wstr) {
-    std::wstring_convert<std::codecvt_utf8_utf16<char16_t>, char16_t> converter;
+std::string wStringToUTF8(const std::wstring& wstring) {
+	if (wstring.length() == 0) {
+		return std::string();
+	}
 
-    return converter.from_bytes(std::wstring_convert<std::codecvt_utf8<wchar_t>>().to_bytes(wstr));
+	int capacity = (wstring.length() + 1) * sizeof(char) * 4;
+	char* charBuffer = new char[capacity];
+
+	int charLength = WideCharToMultiByte(CP_UTF8, 0, wstring.c_str(), wstring.length(), charBuffer, capacity, nullptr, nullptr);
+	charBuffer[charLength] = 0;
+
+	std::string resultString;
+	resultString.assign(charBuffer);
+
+	return resultString;
 }
 
-std::wstring u16stringToWstring(const std::u16string& u16string) {
-    std::wstring wstring;
+std::wstring utf8ToWString(const std::string& string) {
+	if (string.length() == 0) {
+		return std::wstring();
+	}
 
-    for (char16_t ch : u16string) {
-        wstring.push_back(static_cast<wchar_t>(ch));
-    }
+	int capacity = (string.length() + 1) * 2;
+	wchar_t* wcharBuffer = new wchar_t[capacity];
 
-    return wstring;
+	int wcharLength = MultiByteToWideChar(CP_UTF8, 0, string.c_str(), strlen(string.c_str()), wcharBuffer, capacity);
+	wcharBuffer[wcharLength] = 0;
+
+	std::wstring resultWString;
+	resultWString.assign(wcharBuffer);
+
+	return resultWString;
 }
 
 std::wstring napiStringToWString(const Napi::String& napiString) {
-	return u16stringToWstring(napiString.Utf16Value());
+	return utf8ToWString(napiString.Utf8Value());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -51,30 +68,32 @@ public:
 			return 0;
 		}
 
-		HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-		if (FAILED(hr)) {
-			return hr;
+		HRESULT resultCode;
+
+		resultCode = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+		if (FAILED(resultCode)) {
+			return resultCode;
 		}
 
 		ISpellCheckerFactory* factory;
 
-		hr = CoCreateInstance(__uuidof(SpellCheckerFactory), nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&factory));
-		if (FAILED(hr)) {
-			return hr;
+		resultCode = CoCreateInstance(__uuidof(SpellCheckerFactory), nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&factory));
+		if (FAILED(resultCode)) {
+			return resultCode;
 		}
 
-		hr = factory->CreateSpellChecker(language.c_str(), &spellChecker);
-		if (FAILED(hr)) {
+		resultCode = factory->CreateSpellChecker(language.c_str(), &spellChecker);
+		if (FAILED(resultCode)) {
 			factory->Release();
 
-			return hr;
+			return resultCode;
 		}
 
 		factory->Release();
 
 		isInitialized = true;
 
-		return hr;
+		return resultCode;
 	}
 
 	bool TestSpelling(const std::wstring& word) const {
@@ -83,8 +102,9 @@ public:
 		}
 
 		IEnumSpellingError* spellingErrors = nullptr;
-		HRESULT hr = spellChecker->Check(word.c_str(), &spellingErrors);
-		if (FAILED(hr)) {
+
+		HRESULT resultCode = spellChecker->Check(word.c_str(), &spellingErrors);
+		if (FAILED(resultCode)) {
 			return false;
 		}
 
@@ -116,8 +136,8 @@ public:
 		}
 
 		IEnumString* suggestedWords = nullptr;
-		HRESULT hr = spellChecker->Suggest(word.c_str(), &suggestedWords);
-		if (FAILED(hr)) {
+		HRESULT resultCode = spellChecker->Suggest(word.c_str(), &suggestedWords);
+		if (FAILED(resultCode)) {
 			return suggestions;
 		}
 
@@ -134,7 +154,7 @@ public:
 	}
 
 	// AddWord adds a word to the system dictionary.
-	// The added word persists in the current user's dictionary, forever.
+	// The added word persists in the current user's dictionary, forever!
 	//
 	// Location is %userprofile%\AppData\Roaming\Microsoft\Spelling\neutral\default.dic
 	HRESULT AddWord(const std::wstring& word) {
@@ -147,15 +167,15 @@ public:
 	HRESULT RemoveWord(const std::wstring& word) {
 		ISpellChecker2 *spellChecker2 = NULL;
 
-		auto hr = spellChecker->QueryInterface(__uuidof(ISpellChecker2), (LPVOID *)&spellChecker2);
+		HRESULT resultCode = spellChecker->QueryInterface(__uuidof(ISpellChecker2), (LPVOID *)&spellChecker2);
 
-		if (SUCCEEDED(hr)) {
-			hr = spellChecker2->Remove(word.c_str());
+		if (SUCCEEDED(resultCode)) {
+			resultCode = spellChecker2->Remove(word.c_str());
 
 			spellChecker2->Release();
 		}
 
-		return hr;
+		return resultCode;
 	}
 
 	~WindowsSpellChecker() {
@@ -173,27 +193,29 @@ public:
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-// Language list method
+// Language list retrieval
 ///////////////////////////////////////////////////////////////////////////////////////////
 std::vector<std::wstring> getSupportedLanguageList() {
 	std::vector<std::wstring> result;
 
-	HRESULT hr = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
-	if (FAILED(hr)) {
+	HRESULT resultCode;
+
+	resultCode = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+	if (FAILED(resultCode)) {
 		return result;
 	}
 
 	ISpellCheckerFactory* factory;
 
-	hr = CoCreateInstance(__uuidof(SpellCheckerFactory), nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&factory));
-	if (FAILED(hr)) {
+	resultCode = CoCreateInstance(__uuidof(SpellCheckerFactory), nullptr, CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&factory));
+	if (FAILED(resultCode)) {
 		return result;
 	}
 
 	IEnumString* langList;
-	hr = factory->get_SupportedLanguages(&langList);
+	resultCode = factory->get_SupportedLanguages(&langList);
 
-	if (FAILED(hr)) {
+	if (FAILED(resultCode)) {
 		factory->Release();
 
 		return result;
@@ -207,14 +229,14 @@ std::vector<std::wstring> getSupportedLanguageList() {
 
 		CoTaskMemFree(lang);
 	}
-	
+
 	CoUninitialize();
 
 	return result;
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////
-// Napi methods
+// N-API wrapper methods
 ///////////////////////////////////////////////////////////////////////////////////////////
 Napi::Value createWindowsSpellChecker(const Napi::CallbackInfo& info) {
 	auto env = info.Env();
@@ -260,7 +282,7 @@ Napi::Value createWindowsSpellChecker(const Napi::CallbackInfo& info) {
 		for (size_t i = 0; i < suggestions.size(); i++) {
 			const std::wstring& suggestion = suggestions[i];
 
-			auto suggestionNapiString = Napi::String::New(env, wstringToU16string(suggestion));
+			auto suggestionNapiString = Napi::String::New(env, wStringToUTF8(suggestion));
 
 			resultNapiArray.Set(i, suggestionNapiString);
 		}
@@ -294,7 +316,7 @@ Napi::Value createWindowsSpellChecker(const Napi::CallbackInfo& info) {
 
 		if (FAILED(errorCode)) {
 			std::stringstream errorString;
-			errorString << "Failed to add remove '" << wordString.c_str() << "' from Windows spell checker. Got error code " << errorCode;
+			errorString << "Failed to remove word '" << wordString.c_str() << "' from Windows spell checker. Got error code " << errorCode << ".";
 
 			Napi::Error::New(env, errorString.str()).ThrowAsJavaScriptException();
 		}
@@ -327,7 +349,7 @@ Napi::Array getSupportedLanguages(const Napi::CallbackInfo& info) {
 	for (size_t i = 0; i < languageList.size(); i++) {
 		const std::wstring& language = languageList[i];
 
-		auto languageNapiString = Napi::String::New(env, wstringToU16string(language));
+		auto languageNapiString = Napi::String::New(env, wStringToUTF8(language));
 
 		resultNapiArray.Set(i, languageNapiString);
 	}
