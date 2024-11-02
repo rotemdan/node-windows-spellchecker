@@ -66,6 +66,17 @@ export function createWindowsSpellChecker(language: string) {
 	return wrappedInstance
 }
 
+export function isAddonAvailable() {
+	try {
+		const addon = getAddonInstance()
+		const result = addon.isAddonLoaded()
+
+		return result === true
+	} catch (e) {
+		return false
+	}
+}
+
 function getAddonInstance() {
 	return createRequire(import.meta.url)('../addon/WindowsSpellChecker.node')
 }

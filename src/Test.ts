@@ -1,4 +1,8 @@
-import { createWindowsSpellChecker, getSupportedLanguages } from './Exports.js'
+import { createWindowsSpellChecker, getSupportedLanguages, isAddonAvailable } from './Exports.js'
+
+const available = isAddonAvailable()
+
+console.log(available)
 
 const languages = getSupportedLanguages()
 

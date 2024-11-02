@@ -357,9 +357,16 @@ Napi::Array getSupportedLanguages(const Napi::CallbackInfo& info) {
 	return resultNapiArray;
 }
 
+Napi::Value isAddonLoaded(const Napi::CallbackInfo& info) {
+	auto env = info.Env();
+
+	return Napi::Boolean::New(env, true);
+}
+
 Napi::Object Init(Napi::Env env, Napi::Object exports) {
 	exports.Set(Napi::String::New(env, "getSupportedLanguages"), Napi::Function::New(env, getSupportedLanguages));
 	exports.Set(Napi::String::New(env, "createWindowsSpellChecker"), Napi::Function::New(env, createWindowsSpellChecker));
+	exports.Set(Napi::String::New(env, "isAddonLoaded"), Napi::Function::New(env, isAddonLoaded));
 
 	return exports;
 }
