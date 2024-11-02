@@ -245,11 +245,11 @@ Napi::Value createWindowsSpellChecker(const Napi::CallbackInfo& info) {
 
 	auto windowsSpellChecker = new WindowsSpellChecker(language);
 
-	auto errorCode = windowsSpellChecker->Initialize();
+	auto initResultCode = windowsSpellChecker->Initialize();
 
-	if (FAILED(errorCode)) {
+	if (FAILED(initResultCode)) {
 		std::stringstream errorString;
-		errorString << "Failed to initialize Windows spell checker. Got error code " << errorCode;
+		errorString << "Failed to initialize Windows spell checker. Got error code " << initResultCode;
 
 		Napi::Error::New(env, errorString.str()).ThrowAsJavaScriptException();
 
