@@ -1,19 +1,19 @@
-# Minimalist Node.js binding to the Windows spell-checker
+# Node.js binding to the Windows spell-checker
 
 Uses N-API to bind to the Windows native spell-checker:
 
-* Only a minimal set of operations are implemented: `testSpelling`, `getSpellingSuggestions`, `addWord` and `removeWord` (all apply to a single word only)
+* Only a minimal set of operations are currently implemented: `testSpelling`, `getSpellingSuggestions`, `addWord` and `removeWord` (all apply to a single word only)
 * Addon binary is pre-bundled. Doesn't require any install-time scripts
 * Uses the stable `napi.h` C++ API (with `NAPI_VERSION = 8`). It should not generally require recompilation for new different Node.js versions
 * Should work in different versions of Electron.js without recompilation
 
 ## Usage Example
 ```
-npm install windows-spellchecker-minimal
+npm install windows-spellchecker
 ```
 
 ```ts
-import { createWindowsSpellChecker, getSupportedLanguages } from 'windows-spellchecker-minimal'
+import { createWindowsSpellChecker, getSupportedLanguages } from 'windows-spellchecker'
 
 console.log(getSupportedLanguages())
 // Output: [ 'en-US', 'fr-FR', 'es-ES' ]

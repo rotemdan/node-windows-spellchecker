@@ -1,7 +1,7 @@
 {
-	"name": "windows-spellchecker-minimal",
+	"name": "windows-spellchecker",
 	"version": "0.2.0",
-	"description": "Minimalist Node.js binding to the Windows spell-checker.",
+	"description": "Node.js binding to the Windows spell-checker.",
 	"author": "Rotem Dan",
 	"license": "MIT",
 	"keywords": [
@@ -10,10 +10,10 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/rotemdan/node-windows-spellchecker-minimal"
+		"url": "https://github.com/rotemdan/node-windows-spellchecker"
 	},
 	"bugs": {
-		"url": "https://github.com/rotemdan/node-windows-spellchecker-minimal/issues"
+		"url": "https://github.com/rotemdan/node-windows-spellchecker/issues"
 	},
 	"engines": {
 		"node": ">=18"
