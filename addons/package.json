@@ -2,12 +2,13 @@
 	"name": "windows-spell-checker-addon",
 	"description": "N-API addon for the Windows spell-checker",
 	"version": "0.1.0",
-	"main": "WindowsSpellChecker.node",
+	"main": "",
 	"publishConfig": {
 		"access": "restricted"
 	},
 	"scripts": {
-		"rebuild": "node-gyp rebuild && xcopy /Y build\\Release\\*.node .\\"
+		"build-x64": "node-gyp rebuild -arch x64 && xcopy /Y build\\Release\\*.node .\\bin",
+		"build-arm64": "node-gyp rebuild -arch arm64 && xcopy /Y build\\Release\\*.node .\\bin"
 	},
 	"dependencies": {},
 	"devDependencies": {

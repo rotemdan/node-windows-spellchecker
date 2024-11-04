@@ -6,8 +6,9 @@ Uses N-API to bind to the Windows native spell-checker:
 * Addon binary is pre-bundled. Doesn't require any install-time scripts
 * Uses the stable `napi.h` C++ API (with `NAPI_VERSION = 8`). It should not generally require recompilation for new different Node.js versions
 * Should work in different versions of Electron.js without recompilation
+* Supports both x64 and arm64 versions of Windows
 
-## Usage Example
+## Usage example
 ```
 npm install windows-spellchecker
 ```
@@ -62,8 +63,9 @@ The library is bundled with a pre-built addon, so recompilation shouldn't be nee
 If you still want to compile yourself, for a modification or a fork:
 
 * Install Visual Studio 2022 build tools
-* Use `x64 Native Tools Command Prompt for VS 2022` to ensure x64 VS2022 build tools are available in path
-* In the `addon` directory, run `npm install`, which will install the necessary build tools. Then run `npm run rebuild`.
+* In the `addons` directory, run `npm install`, which would install the necessary build tools. Then run `npm run build-x64`
+* To cross-compile for arm64 go to `Visual Studio Installer -> Individual components`, and ensure `MSVC v143 - VS 2022 C++ ARM64 build tools (latest)` is checked. Then run `npm run build-arm64`
+* Resulting binaries should be written to the `addons/bin` directory
 
 ## License
 

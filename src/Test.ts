@@ -3,6 +3,10 @@ import { createWindowsSpellChecker, getSupportedLanguages, isAddonAvailable } fr
 const available = isAddonAvailable()
 console.log(available)
 
+if (!available) {
+	process.exit(1)
+}
+
 const languages = getSupportedLanguages()
 
 console.log(languages)

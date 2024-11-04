@@ -1,6 +1,6 @@
 {
 	"name": "windows-spellchecker",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "Node.js binding to the Windows spell-checker.",
 	"author": "Rotem Dan",
 	"license": "MIT",
@@ -27,9 +27,10 @@
 	"main": "./dist/Exports.js",
 	"type": "module",
 	"files": [
-		"dist",
-		"addon/WindowsSpellChecker.node",
 		"src",
+		"dist",
+		"addons/bin/windows-x64-spellchecker.node",
+		"addons/bin/windows-arm64-spellchecker.node",
 		"tsconfig.json",
 		"LICENSE.md",
 		"README.md"
